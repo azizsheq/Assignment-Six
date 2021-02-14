@@ -68,3 +68,8 @@ img {
 #error-txt{
   color: red;
 }
+
+#loading-spinner{
+  display: none;
+  text-align: center;
+}

@@ -16,9 +16,10 @@ const KEY = '15674931-a9d714b6e9d654524df198e00&q';
 
 // show images 
 const showImages = (images) => {
-  if(images.length === 0){
+  if (images.length === 0) {
     searchError();  // displaying error if the response from the server is empty
-  }else{
+    displaySpinner(false);
+  } else {
     imagesArea.style.display = 'block';
     gallery.innerHTML = '';
     // show gallery title
@@ -29,60 +30,55 @@ const showImages = (images) => {
       div.innerHTML = ` <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
       gallery.appendChild(div)
     })
+    displaySpinner(false);
   }
 }
 
 const getImages = (query) => {
-  if(query === ""){
+  if (query === "") {
     emptySearchError(); // displaying error message
   }
-  else{
+  else {
+    displaySpinner(true);
     clearErrorText(); // removing previous error message
     fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
-    .then(response => response.json())
-    .then(data => showImages(data.hits))
-    .catch(err => console.log(err))
+      .then(response => response.json())
+      .then(data => showImages(data.hits))
+      .catch(err => console.log(err))
   }
 }
 
 
 // for accessing Keyboard "Enter" Button
-searchTxt.addEventListener('keypress', function(event){
-  if(event.key === 'Enter'){  // comparing the keyboard key value
+searchTxt.addEventListener('keypress', function (event) {
+  if (event.key === 'Enter') {  // comparing the keyboard key value
     searchBtn.click();  // adding event with search button
   }
 })
 
 let slideIndex = 0;
 const selectItem = (event, img) => {
+
   let element = event.target;
-  // element.classList.add('added');  // add used to add css class while select
-
-  console.log("initial slider : ", sliders);
-  console.log("selecting img : ", img);
-
   let item = sliders.indexOf(img);
-  console.log("item", item);
 
   if (item === -1) {
     sliders.push(img);
     element.classList.toggle('added');
   } else {
-    // alert('Hey, Already added !')
-    // sliders = sliders.filter(item => item === item.className('added'));
     element.classList.toggle('added');
-    // sliders.remove(item);
+    // getting the index of the deselected image
+    const index = sliders.indexOf(img);
+    // removing the img using the splice
+    if (index > -1) { sliders.splice(index, 1) };
   }
-  
-  console.log("Slider Array : ", sliders);
-  console.log("item", item);
 }
 
 var timer
 const createSlider = () => {
   // check slider image length
   if (sliders.length < 2) {
-    alert('Select at least 2 image.')
+    alert('Select at least 2 images.')
     return;
   }
   // crate slider previous next area
@@ -98,24 +94,28 @@ const createSlider = () => {
   document.querySelector('.main').style.display = 'block';
   // hide image aria
   imagesArea.style.display = 'none';
-  let duration = document.getElementById('duration').value || 1000; 
-  // duration negative value control
-  if(duration < 0){
-    duration = duration * -1; // multiplying with -1 one to handel negative value
+  let duration = document.getElementById('duration').value || 1000;
+  if (duration < 0) {
+    // displaying error message
+    alert("Sorry, Interval Time Cannot be a Negative Value ! \nPlease Enter Again.");
+    document.getElementById('duration').value = ""; // clearing the input text box
+    imagesArea.style.display = 'block'; // keep the image area display style as block
   }
-  sliders.forEach(slide => {
-    let item = document.createElement('div')
-    item.className = "slider-item";
-    item.innerHTML = `<img class="w-100"
-    src="${slide}"
-    alt="">`;
-    sliderContainer.appendChild(item)
-  })
-  changeSlide(0)
-  timer = setInterval(function () {
-    slideIndex++;
-    changeSlide(slideIndex);
-  }, duration);
+  else{
+    sliders.forEach(slide => {
+      let item = document.createElement('div')
+      item.className = "slider-item";
+      item.innerHTML = `<img class="w-100"
+      src="${slide}"
+      alt="">`;
+      sliderContainer.appendChild(item)
+    })
+    changeSlide(0)
+    timer = setInterval(function () {
+      slideIndex++;
+      changeSlide(slideIndex);
+    }, duration);
+  }
 }
 
 // change slider index 
@@ -156,18 +156,30 @@ sliderBtn.addEventListener('click', function () {
   createSlider()
 })
 
-function emptySearchError(){
-    document.getElementById("error-txt").innerText = "Please Enter Text into the Search Box !";
-    galleryHeader.style.display = 'none'; // clearing the previous search
-    gallery.innerHTML = "";
+function emptySearchError() {
+  document.getElementById("error-txt").innerText = "Please Enter Text into the Search Box !";
+  galleryHeader.style.display = 'none'; // clearing the previous search
+  gallery.innerHTML = "";
 }
 
-function searchError(){
+function searchError() {
   document.getElementById("error-txt").innerText = "Sorry, No Similar Data Found !";
   galleryHeader.style.display = 'none'; // clearing the previous search
   gallery.innerHTML = "";
 }
 
-function clearErrorText(){
+function clearErrorText() {
   document.getElementById("error-txt").innerHTML = "";
+}
+
+
+const displaySpinner = (show) => {
+  const spinner = document.getElementById("loading-spinner");
+
+  if(show){
+    spinner.style.display = "block";
+  }
+  else{
+    spinner.style.display = "none";
+  }
 }
