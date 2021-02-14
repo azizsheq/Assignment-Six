@@ -2,6 +2,7 @@ const imagesArea = document.querySelector('.images');
 const gallery = document.querySelector('.gallery');
 const galleryHeader = document.querySelector('.gallery-header');
 const searchBtn = document.getElementById('search-btn');
+const searchTxt = document.getElementById('search'); // adding for keyboard 'Enter' functionality
 const sliderBtn = document.getElementById('create-slider');
 const sliderContainer = document.getElementById('sliders');
 // selected image 
@@ -29,22 +30,40 @@ const showImages = (images) => {
 }
 
 const getImages = (query) => {
-  fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
+  if(query === ""){
+    emptySearchError(); // displaying error message
+  }
+  else{
+    clearErrorText(); // removing previous error message
+    fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
     .then(response => response.json())
-    .then(data => showImages(data.hitS))
+    .then(data => showImages(data.hits))
     .catch(err => console.log(err))
+  }
 }
+
+
+// for accessing Keyboard "Enter" Button
+searchTxt.addEventListener('keypress', function(event){
+  if(event.key === 'Enter'){  // comparing the keyboard key value
+    searchBtn.click();  // adding event with search button
+  }
+})
 
 let slideIndex = 0;
 const selectItem = (event, img) => {
   let element = event.target;
-  element.classList.add('added');
+  // element.classList.add('added');  //given
  
   let item = sliders.indexOf(img);
   if (item === -1) {
     sliders.push(img);
+    element.classList.toggle('added');
   } else {
-    alert('Hey, Already added !')
+    // alert('Hey, Already added !')
+    // sliders = sliders.filter(item => item === item.className('added'));
+    element.classList.toggle('added');
+    // sliders.remove(item);
   }
 }
 var timer
@@ -67,7 +86,11 @@ const createSlider = () => {
   document.querySelector('.main').style.display = 'block';
   // hide image aria
   imagesArea.style.display = 'none';
-  const duration = document.getElementById('duration').value || 1000;
+  let duration = document.getElementById('duration').value || 1000; 
+  // duration negative value control
+  if(duration < 0){
+    duration = duration * -1; // multiplying with -1 one to handel negative value
+  }
   sliders.forEach(slide => {
     let item = document.createElement('div')
     item.className = "slider-item";
@@ -120,3 +143,12 @@ searchBtn.addEventListener('click', function () {
 sliderBtn.addEventListener('click', function () {
   createSlider()
 })
+
+function emptySearchError(){
+    document.getElementById("error-txt").innerText = "Please Enter Text into the Search Box !";
+    gallery.innerHTML = ''; // clearing the previous search
+}
+
+function clearErrorText(){
+  document.getElementById("error-txt").innerHTML = "";
+}
