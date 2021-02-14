@@ -16,17 +16,20 @@ const KEY = '15674931-a9d714b6e9d654524df198e00&q';
 
 // show images 
 const showImages = (images) => {
-  imagesArea.style.display = 'block';
-  gallery.innerHTML = '';
-  // show gallery title
-  galleryHeader.style.display = 'flex';
-  images.forEach(image => {
-    let div = document.createElement('div');
-    div.className = 'col-lg-3 col-md-4 col-xs-6 img-item mb-2';
-    div.innerHTML = ` <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
-    gallery.appendChild(div)
-  })
-
+  if(images.length === 0){
+    searchError();  // displaying error if the response from the server is empty
+  }else{
+    imagesArea.style.display = 'block';
+    gallery.innerHTML = '';
+    // show gallery title
+    galleryHeader.style.display = 'flex';
+    images.forEach(image => {
+      let div = document.createElement('div');
+      div.className = 'col-lg-3 col-md-4 col-xs-6 img-item mb-2';
+      div.innerHTML = ` <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
+      gallery.appendChild(div)
+    })
+  }
 }
 
 const getImages = (query) => {
@@ -53,9 +56,14 @@ searchTxt.addEventListener('keypress', function(event){
 let slideIndex = 0;
 const selectItem = (event, img) => {
   let element = event.target;
-  // element.classList.add('added');  //given
- 
+  // element.classList.add('added');  // add used to add css class while select
+
+  console.log("initial slider : ", sliders);
+  console.log("selecting img : ", img);
+
   let item = sliders.indexOf(img);
+  console.log("item", item);
+
   if (item === -1) {
     sliders.push(img);
     element.classList.toggle('added');
@@ -65,7 +73,11 @@ const selectItem = (event, img) => {
     element.classList.toggle('added');
     // sliders.remove(item);
   }
+  
+  console.log("Slider Array : ", sliders);
+  console.log("item", item);
 }
+
 var timer
 const createSlider = () => {
   // check slider image length
@@ -146,7 +158,14 @@ sliderBtn.addEventListener('click', function () {
 
 function emptySearchError(){
     document.getElementById("error-txt").innerText = "Please Enter Text into the Search Box !";
-    gallery.innerHTML = ''; // clearing the previous search
+    galleryHeader.style.display = 'none'; // clearing the previous search
+    gallery.innerHTML = "";
+}
+
+function searchError(){
+  document.getElementById("error-txt").innerText = "Sorry, No Similar Data Found !";
+  galleryHeader.style.display = 'none'; // clearing the previous search
+  gallery.innerHTML = "";
 }
 
 function clearErrorText(){
