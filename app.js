@@ -5,6 +5,7 @@ const searchBtn = document.getElementById('search-btn');
 const searchTxt = document.getElementById('search'); // adding for keyboard 'Enter' functionality
 const sliderBtn = document.getElementById('create-slider');
 const sliderContainer = document.getElementById('sliders');
+const errorTxt = document.getElementById("error-txt"); // adding to get the div to display error message
 // selected image 
 let sliders = [];
 
@@ -14,11 +15,12 @@ let sliders = [];
 // to create your own api key
 const KEY = '15674931-a9d714b6e9d654524df198e00&q';
 
+
 // show images 
 const showImages = (images) => {
   if (images.length === 0) {
     searchError();  // displaying error if the response from the server is empty
-    displaySpinner(false);
+    displaySpinner(false);  // to stop the spinner
   } else {
     imagesArea.style.display = 'block';
     gallery.innerHTML = '';
@@ -30,16 +32,17 @@ const showImages = (images) => {
       div.innerHTML = ` <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
       gallery.appendChild(div)
     })
-    displaySpinner(false);
+    displaySpinner(false);  // to stop the spinner
   }
 }
+
 
 const getImages = (query) => {
   if (query === "") {
     emptySearchError(); // displaying error message
   }
   else {
-    displaySpinner(true);
+    displaySpinner(true); // to run the spinner
     clearErrorText(); // removing previous error message
     fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
       .then(response => response.json())
@@ -55,6 +58,7 @@ searchTxt.addEventListener('keypress', function (event) {
     searchBtn.click();  // adding event with search button
   }
 })
+
 
 let slideIndex = 0;
 const selectItem = (event, img) => {
@@ -73,6 +77,7 @@ const selectItem = (event, img) => {
     if (index > -1) { sliders.splice(index, 1) };
   }
 }
+
 
 var timer
 const createSlider = () => {
@@ -95,7 +100,9 @@ const createSlider = () => {
   // hide image aria
   imagesArea.style.display = 'none';
   let duration = document.getElementById('duration').value || 1000;
-  if (duration < 0) {
+
+  // validation for negative input
+  if (duration < 0) { 
     // displaying error message
     alert("Sorry, Interval Time Cannot be a Negative Value ! \nPlease Enter Again.");
     document.getElementById('duration').value = ""; // clearing the input text box
@@ -105,9 +112,7 @@ const createSlider = () => {
     sliders.forEach(slide => {
       let item = document.createElement('div')
       item.className = "slider-item";
-      item.innerHTML = `<img class="w-100"
-      src="${slide}"
-      alt="">`;
+      item.innerHTML = `<img class="w-100" src="${slide}" alt="">`;
       sliderContainer.appendChild(item)
     })
     changeSlide(0)
@@ -118,10 +123,12 @@ const createSlider = () => {
   }
 }
 
+
 // change slider index 
 const changeItem = index => {
   changeSlide(slideIndex += index);
 }
+
 
 // change slide item
 const changeSlide = (index) => {
@@ -144,6 +151,7 @@ const changeSlide = (index) => {
   items[index].style.display = "block"
 }
 
+
 searchBtn.addEventListener('click', function () {
   document.querySelector('.main').style.display = 'none';
   clearInterval(timer);
@@ -156,30 +164,36 @@ sliderBtn.addEventListener('click', function () {
   createSlider()
 })
 
-function emptySearchError() {
-  document.getElementById("error-txt").innerText = "Please Enter Text into the Search Box !";
+
+// function to display error for empty search box
+const emptySearchError = () => {
+  errorTxt.innerText = "Please Enter Text into the Search Box !";
   galleryHeader.style.display = 'none'; // clearing the previous search
   gallery.innerHTML = "";
 }
 
-function searchError() {
-  document.getElementById("error-txt").innerText = "Sorry, No Similar Data Found !";
+
+// function to display error, if the feedback for the server is empty / []
+const searchError = () => {
+  errorTxt.innerText = "Sorry, No Similar Data Found !";
   galleryHeader.style.display = 'none'; // clearing the previous search
   gallery.innerHTML = "";
 }
 
-function clearErrorText() {
-  document.getElementById("error-txt").innerHTML = "";
+
+// function to clear the previous error texts
+const clearErrorText = () => {
+  errorTxt.innerHTML = "";
 }
 
 
+// function to display and hide the spinner
 const displaySpinner = (show) => {
-  const spinner = document.getElementById("loading-spinner");
-
+  const spinner = document.getElementById("loading-spinner"); // getting the spinner div
   if(show){
-    spinner.style.display = "block";
+    spinner.style.display = "block";  // to display
   }
   else{
-    spinner.style.display = "none";
+    spinner.style.display = "none"; // to hide 
   }
 }

@@ -65,10 +65,12 @@ img {
   }
 }
 
+/* adding style to the error message */
 #error-txt{
   color: red;
 }
 
+/* adding style to the spinner */
 #loading-spinner{
   display: none;
   text-align: center;
